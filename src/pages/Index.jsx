@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { client } from '../../lib/crud';
 import { Box, Button, Input, VStack, useToast, Textarea, Tag, TagLabel, TagCloseButton, HStack } from '@chakra-ui/react';
 
 const Index = () => {
@@ -8,13 +9,17 @@ const Index = () => {
   const [note, setNote] = useState('');
   const [tags, setTags] = useState([]);
   const [tagInput, setTagInput] = useState('');
+  const [notes, setNotes] = useState([]);
   const toast = useToast();
 
   useEffect(() => {
-    const token = localStorage.getItem('supabase.auth.token');
-    if (token) {
-      setIsLoggedIn(true);
-    }
+    const fetchNotes = async () => {
+      const fetchedNotes = await client.getWithPrefix('note:');
+      if (fetchedNotes) {
+        setNotes(fetchedNotes.map(note => note.value));
+      }
+    };
+    fetchNotes();
   }, []);
 
   const handleLogin = async () => {
@@ -76,9 +81,10 @@ const Index = () => {
     setNote(e.target.value);
   };
 
-  const handleSaveNote = () => {
-    // Placeholder for note saving logic
-    console.log('Note:', note, 'Tags:', tags);
+  const handleSaveNote = async () => {
+    const noteObject = { note, tags };
+    await client.set(`note:${new Date().toISOString()}`, noteObject);
+    setNotes([...notes, noteObject]);
     toast({
       title: 'Note saved',
       description: 'Your note has been saved successfully.',
@@ -113,6 +119,20 @@ const Index = () => {
               <Input placeholder="Add a tag..." value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyPress={event => event.key === 'Enter' ? handleAddTag() : null} />
             </HStack>
             <Button colorScheme="green" onClick={handleSaveNote}>Save Note</Button>
+            <VStack spacing={4}>
+              {notes.map((noteObj, index) => (
+                <Box key={index} p={4} shadow="md" borderWidth="1px">
+                  <Text mt={2}>{noteObj.note}</Text>
+                  <HStack spacing={2}>
+                    {noteObj.tags.map((tag, tagIndex) => (
+                      <Tag size="md" key={tagIndex} borderRadius="full">
+                        <TagLabel>{tag}</TagLabel>
+                      </Tag>
+                    ))}
+                  </HStack>
+                </Box>
+              ))}
+            </VStack>
           </>
         )}
       </VStack>
