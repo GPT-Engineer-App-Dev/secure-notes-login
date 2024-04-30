@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Button, Input, VStack, useToast } from '@chakra-ui/react';
+import { Box, Button, Input, VStack, useToast, Textarea, Tag, TagLabel, TagCloseButton, HStack } from '@chakra-ui/react';
 
 const Index = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [note, setNote] = useState('');
+  const [tags, setTags] = useState([]);
+  const [tagInput, setTagInput] = useState('');
   const toast = useToast();
 
   useEffect(() => {
@@ -58,6 +61,35 @@ const Index = () => {
     });
   };
 
+  const handleAddTag = () => {
+    if (tagInput && !tags.includes(tagInput)) {
+      setTags([...tags, tagInput]);
+      setTagInput('');
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove) => {
+    setTags(tags.filter(tag => tag !== tagToRemove));
+  };
+
+  const handleNoteChange = (e) => {
+    setNote(e.target.value);
+  };
+
+  const handleSaveNote = () => {
+    // Placeholder for note saving logic
+    console.log('Note:', note, 'Tags:', tags);
+    toast({
+      title: 'Note saved',
+      description: 'Your note has been saved successfully.',
+      status: 'success',
+      duration: 9000,
+      isClosable: true,
+    });
+    setNote('');
+    setTags([]);
+  };
+
   return (
     <Box p={5}>
       <VStack spacing={4}>
@@ -68,7 +100,20 @@ const Index = () => {
             <Button colorScheme="blue" onClick={handleLogin}>Login</Button>
           </>
         ) : (
-          <Button colorScheme="red" onClick={handleLogout}>Logout</Button>
+          <>
+            <Button colorScheme="red" onClick={handleLogout}>Logout</Button>
+            <Textarea placeholder="Write your note here..." value={note} onChange={handleNoteChange} />
+            <HStack spacing={2}>
+              {tags.map((tag, index) => (
+                <Tag size="lg" key={index} borderRadius="full">
+                  <TagLabel>{tag}</TagLabel>
+                  <TagCloseButton onClick={() => handleRemoveTag(tag)} />
+                </Tag>
+              ))}
+              <Input placeholder="Add a tag..." value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyPress={event => event.key === 'Enter' ? handleAddTag() : null} />
+            </HStack>
+            <Button colorScheme="green" onClick={handleSaveNote}>Save Note</Button>
+          </>
         )}
       </VStack>
     </Box>
