@@ -13,13 +13,27 @@ const Index = () => {
   const toast = useToast();
 
   useEffect(() => {
-    const fetchNotes = async () => {
-      const fetchedNotes = await client.getWithPrefix('note:');
-      if (fetchedNotes) {
-        setNotes(fetchedNotes.map(note => note.value));
-      }
-    };
-    fetchNotes();
+    const token = localStorage.getItem('supabase.auth.token');
+    if (token) {
+      setIsLoggedIn(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    const localNotes = JSON.parse(localStorage.getItem('notes'));
+    if (localNotes) {
+      setNotes(localNotes);
+    } else {
+      const fetchNotes = async () => {
+        const fetchedNotes = await client.getWithPrefix('note:');
+        if (fetchedNotes) {
+          const notesValue = fetchedNotes.map(note => note.value);
+          setNotes(notesValue);
+          localStorage.setItem('notes', JSON.stringify(notesValue));
+        }
+      };
+      fetchNotes();
+    }
   }, []);
 
   const handleLogin = async () => {
@@ -83,17 +97,21 @@ const Index = () => {
 
   const handleSaveNote = async () => {
     const noteObject = { note, tags };
-    await client.set(`note:${new Date().toISOString()}`, noteObject);
-    setNotes([...notes, noteObject]);
-    toast({
-      title: 'Note saved',
-      description: 'Your note has been saved successfully.',
-      status: 'success',
-      duration: 9000,
-      isClosable: true,
-    });
-    setNote('');
-    setTags([]);
+    const success = await client.set(`note:${new Date().toISOString()}`, noteObject);
+    if (success) {
+      const updatedNotes = [...notes, noteObject];
+      setNotes(updatedNotes);
+      localStorage.setItem('notes', JSON.stringify(updatedNotes));
+      toast({
+        title: 'Note saved',
+        description: 'Your note has been saved successfully.',
+        status: 'success',
+        duration: 9000,
+        isClosable: true,
+      });
+      setNote('');
+      setTags([]);
+    }
   };
 
   return (
