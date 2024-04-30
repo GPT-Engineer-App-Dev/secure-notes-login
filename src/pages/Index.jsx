@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Box, Button, Input, VStack, useToast, Heading, Text, Flex } from '@chakra-ui/react';
 
 const Index = () => {
@@ -8,7 +8,6 @@ const Index = () => {
   const toast = useToast();
 
   const handleLogin = async () => {
-    // Simulated login logic
     setIsLoggedIn(true);
     toast({
       title: 'Login successful',
