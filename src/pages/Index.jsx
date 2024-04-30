@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Button, Input, VStack, useToast } from '@chakra-ui/react';
+import { Box, Button, Input, VStack, useToast, Heading, Text, Flex } from '@chakra-ui/react';
 
 const Index = () => {
   const [email, setEmail] = useState('');
@@ -59,19 +59,23 @@ const Index = () => {
   };
 
   return (
-    <Box p={5}>
-      <VStack spacing={4}>
-        {!isLoggedIn ? (
-          <>
-            <Input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-            <Input placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-            <Button colorScheme="blue" onClick={handleLogin}>Login</Button>
-          </>
-        ) : (
-          <Button colorScheme="red" onClick={handleLogout}>Logout</Button>
-        )}
-      </VStack>
-    </Box>
+    <Flex align="center" justify="center" h="100vh">
+      <Box p={8} maxW="sm" borderWidth="1px" borderRadius="lg" boxShadow="lg" bg="white">
+        <VStack spacing={4}>
+          {!isLoggedIn ? (
+            <>
+              <Heading as="h1" size="lg" textAlign="center" mb={6}>Login</Heading>
+              <Input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} size="lg" mb={3} />
+              <Input placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} size="lg" mb={3} />
+              <Button colorScheme="blue" size="lg" width="full" onClick={handleLogin}>Login</Button>
+              <Text mt={4} fontSize="sm" textAlign="center">Don't have an account? <Text as="span" color="blue.500" fontWeight="bold">Sign up</Text></Text>
+            </>
+          ) : (
+            <Button colorScheme="red" size="lg" width="full" onClick={handleLogout}>Logout</Button>
+          )}
+        </VStack>
+      </Box>
+    </Flex>
   );
 };
 
